@@ -17,7 +17,7 @@ a {
 }
 
 body {
-  font-family: 'Lato', sans-serif;
+  font-family: "Lato", sans-serif;
   background: #54426b;
 }
 
@@ -61,10 +61,17 @@ ul {
   list-style: none;
 }
 
+.star {
+  height: 14px !important;
+  width: 14px !important;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+
 /* Header */
 .app-header {
   background: #e9f1f7;
-  padding: 1rem;
+  padding: 4px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -102,6 +109,11 @@ ul {
      object-fit: contain;
 }
 
+.heading-title {
+  margin: 10px 0;
+  color: #fff;
+}
+
 .carrousel {
   height: 70vh;
   width: 100%;
@@ -117,10 +129,10 @@ ul {
   overflow: hidden;
   list-style: none;
   position: relative;
-  -webkit-transition: -webkit-transform .5s;
-  transition: -webkit-transform .5s;
-  transition: transform .5s;
-  transition: transform .5s, -webkit-transform .5s;
+  -webkit-transition: -webkit-transform 0.5s;
+  transition: -webkit-transform 0.5s;
+  transition: transform 0.5s;
+  transition: transform 0.5s, -webkit-transform 0.5s;
 }
 
 .carrousel .slides li {
@@ -270,20 +282,19 @@ ul {
   display: flex;
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
   padding: 1rem 0;
 }
 
 .movie-list li {
-  -ms-flex-preferred-size: 20%;
-      flex-basis: 20%;
-  -ms-flex-preferred-size: calc(20% - 1rem);
-      flex-basis: calc(20% - 1rem);
-  height: 45vh;
+  -ms-flex-preferred-size: calc((100% / 6) - 10px);
+      flex-basis: calc((100% / 6) - 10px);
+  max-height: 100%;
   position: relative;
-  margin-bottom: 1rem;
+  margin-right: 10px;
+  margin-bottom: 10px;
   overflow: hidden;
   cursor: pointer;
   border-radius: 8px;
@@ -314,6 +325,7 @@ ul {
   background: #54426b;
   border-radius: 4px;
   font-size: 0.8rem;
+  pointer-events: none;
 }
 
 .movie-extra .movie-year {
@@ -357,7 +369,7 @@ ul {
 }
 
 .sorting-wrap select,
-.sorting-wrap input[type=search] {
+.sorting-wrap input[type="search"] {
   -ms-flex-preferred-size: 20%;
       flex-basis: 20%;
   border-radius: 8px;
