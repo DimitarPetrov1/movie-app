@@ -41,7 +41,7 @@ function TopCarousel(props) {
                 {/* Make a function for max charakters e.g 30 then ... */}
                 <div className="car-movie-description">{entry.overview}</div>
                 <div className="car-detail car-movie-year">
-                  <div>Year:</div>
+                  <div>Release date:</div>
                   {entry.release_date}
                 </div>
                 <div className="car-detail car-movie-rating">
