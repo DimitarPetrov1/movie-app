@@ -12,16 +12,20 @@ function App({ movieTitle, movieImg, movieYear, movieRating }) {
   const API_KEY = "5d0bfc21ffb33bbfd548ebe383da65cc";
   const MAIN_URL = "https://api.themoviedb.org/3/";
   const IMG_URL = "https://image.tmdb.org/t/p/original/";
+  const IMG_PLACEHOLDER =
+    "https://www.c-capture.co.uk/wp/wp-content/uploads/portrait-placeholder.jpg";
 
   useEffect(() => {
     async function fetchCurentTitles() {
       // Start the request when loading > If nothing is searched fetch the default
       // If there is a search fetch the search only
-      const request = await axios.get(
-        searchStr === ""
-          ? `${MAIN_URL}${defaultTitles}?api_key=${API_KEY}`
-          : `${MAIN_URL}search/movie?api_key=${API_KEY}&query=${searchStr}`
-      );
+      const request = await axios
+        .get(
+          searchStr === ""
+            ? `${MAIN_URL}${defaultTitles}?api_key=${API_KEY}`
+            : `${MAIN_URL}search/movie?api_key=${API_KEY}&query=${searchStr}`
+        )
+        .catch((err) => console.log(err));
       setCurentTitles(request.data.results);
       return request;
     }
@@ -64,10 +68,12 @@ function App({ movieTitle, movieImg, movieYear, movieRating }) {
             return (
               <li key={entry.id}>
                 <img
+                  loading="lazy"
                   src={
                     entry.poster_path
                       ? `${IMG_URL}${entry.poster_path}`
-                      : `${IMG_URL}${entry.backdrop_path}`
+                      : // : `${IMG_URL}${entry.backdrop_path}`
+                        IMG_PLACEHOLDER
                   }
                   alt={`Movie: ${entry.original_title}`}
                 />
