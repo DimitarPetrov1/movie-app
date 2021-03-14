@@ -23,7 +23,10 @@
   background: white;
   z-index: 900;
 }
-
+.modal-clear{
+  height: 100vh;
+  overflow-y: hidden;
+}
 .modal-open {
   visibility: visible;
 }

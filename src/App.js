@@ -48,8 +48,7 @@ function App(props) {
   const handleOpenCloseModal = (e) => {
     const cont = document.querySelector(".app");
     const modalWrap = document.querySelector(".modal-wrap");
-    cont.style.height = "100vh";
-    cont.style.overflowY = "hidden";
+    cont.classList.add("modal-clear");
     setOpenModal(true);
     modalDetails.header = e.target.alt;
     modalDetails.body = e.target.getAttribute("data-body");
@@ -57,8 +56,7 @@ function App(props) {
     modalWrap.addEventListener("click", (e) => {
       if (e.target.classList.contains("modal-wrap")) {
         setOpenModal(false);
-        cont.style.height = "unset";
-        cont.style.overflowY = "unset";
+        cont.classList.remove("modal-clear");
       } else {
         return null;
       }
