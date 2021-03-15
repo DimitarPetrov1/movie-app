@@ -1,39 +1,46 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { API_KEY, MAIN_URL, IMG_URL, IMG_PLACEHOLDER } from "./vars";
 import AppHeader from "./AppHeader";
 import TopCarousel from "./TopCarousel";
 import Star from "./svg/star.svg";
 import Modal from "./Modal";
 
 function App(props) {
-  const [defaultTitles, setDefaultTitles] = useState("movie/top_rated");
-  const [curentTitles, setCurentTitles] = useState([]);
+  const [initialTitles, setInitialTitles] = useState("movie/top_rated");
+  const [currentTitles, setCurrentTitles] = useState([]);
+  const [movieId, getMovieId] = useState(123);
+  const [videoKey, setVideoKey] = useState();
   const [searchStr, setSearchStr] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [modalDetails, setModalDetails] = useState({});
-  const API_KEY = "5d0bfc21ffb33bbfd548ebe383da65cc";
-  const MAIN_URL = "https://api.themoviedb.org/3/";
-  const IMG_URL = "https://image.tmdb.org/t/p/original/";
-  const IMG_PLACEHOLDER =
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png";
 
   useEffect(() => {
-    async function fetchCurentTitles() {
+    async function fetchTitles() {
       // Start the request when loading > If nothing is searched fetch the default
       // If there is a search fetch the search only
       const request = await axios
         .get(
           searchStr === ""
-            ? `${MAIN_URL}${defaultTitles}?api_key=${API_KEY}`
+            ? `${MAIN_URL}${initialTitles}?api_key=${API_KEY}`
             : `${MAIN_URL}search/movie?api_key=${API_KEY}&query=${searchStr}`
         )
         .catch((err) => console.log(err));
-      setCurentTitles(request.data.results);
+      setCurrentTitles(request.data.results);
       return request;
     }
-    fetchCurentTitles();
+    async function fetchVideoKey() {
+      const keyRequest = await axios
+        .get(`${MAIN_URL}movie/${movieId}/videos?api_key=${API_KEY}`)
+        .catch((err) => console.log(err));
+      setVideoKey(keyRequest.data.results[0].key);
+      return keyRequest;
+    }
+    fetchTitles();
+    fetchVideoKey();
+
     // need to add sth later (the orl from variable)
-  }, [defaultTitles, searchStr]);
+  }, [initialTitles, searchStr, movieId]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -42,10 +49,11 @@ function App(props) {
 
   const handleChange = (e) => {
     e.preventDefault();
-    setDefaultTitles(e.target.value);
+    setInitialTitles(e.target.value);
   };
 
   const handleOpenCloseModal = (e) => {
+    getMovieId(parseInt(e.target.getAttribute("data-id")));
     const cont = document.querySelector(".app");
     const modalWrap = document.querySelector(".modal-wrap");
     cont.classList.add("modal-clear");
@@ -62,7 +70,6 @@ function App(props) {
       }
     });
   };
-
   return (
     <div className="app">
       <AppHeader />
@@ -72,6 +79,7 @@ function App(props) {
           modalHeader={modalDetails.header}
           modalBody={modalDetails.body}
           modalImage={modalDetails.image}
+          modalVideo={videoKey}
         />
         <p className="heading-title">Trending this week</p>
         {/* <TopCarousel /> */}
@@ -92,11 +100,12 @@ function App(props) {
         </label> */}
 
         <ul className="movie-list">
-          {curentTitles.slice(0, 20).map((entry) => {
+          {currentTitles.slice(0, 20).map((entry) => {
             return (
               <li key={entry.id} onClick={handleOpenCloseModal}>
                 <img
                   data-body={entry.overview}
+                  data-id={entry.id}
                   loading="lazy"
                   src={
                     entry.poster_path
