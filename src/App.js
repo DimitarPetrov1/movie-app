@@ -8,25 +8,17 @@ import Modal from "./Modal";
 
 function App(props) {
   const [openModal, setOpenModal] = useState(false);
-  const [isLoading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(false);
   const [searchStr, setSearchStr] = useState("");
   const [category, setCategory] = useState("");
   const [currentTitles, setCurrentTitles] = useState([]);
   const [modalDetails, setModalDetails] = useState([]);
 
   const top_rated = `${MAIN_URL}movie/top_rated?api_key=${API_KEY}`;
-  let var_category = `${MAIN_URL}${category}?api_key=${API_KEY}`;
   const searching = `${MAIN_URL}search/movie?api_key=${API_KEY}&query=${searchStr}`;
+  const var_category = `${MAIN_URL}${category}?api_key=${API_KEY}`;
 
-  // const fetchVideoKey = async () => {
-  //   const keyRequest = await axios
-  //     .get(`${MAIN_URL}movie/123/videos?api_key=${API_KEY}`)
-  //     .then((data) => {
-  //       setModalDetails.video = data.data.results[0].key;
-  //     })
-  //     .catch((err) => console.log(err));
-  //   return keyRequest;
-  // };
+  // .get(`${MAIN_URL}movie/123/videos?api_key=${API_KEY}`)
 
   useEffect(() => {
     const fetchTitles = async () => {
@@ -36,29 +28,25 @@ function App(props) {
       // 2. if we change the category then fetch that category and display it
       if (searchStr === "") {
         if (category === "") {
-          const req = await axios.get(top_rated).then((data) => {
-            setCurrentTitles(data.data.results);
-          });
+          const req = await axios.get(top_rated);
+          setCurrentTitles(req.data.results);
           return req;
         } else {
-          const req = await axios.get(var_category).then((data) => {
-            setCurrentTitles(data.data.results);
-          });
+          const req = await axios.get(var_category);
+          setCurrentTitles(req.data.results);
           return req;
         }
       } else {
-        const req = await axios.get(searching).then((data) => {
-          setCurrentTitles(data.data.results);
-        });
+        const req = await axios.get(searching);
+        setCurrentTitles(req.data.results);
         return req;
       }
     };
-
     fetchTitles();
-    // fetchVideoKey();
+    // setLoading(false);
+  }, [category, searchStr]);
 
-    setLoading(false);
-  }, [currentTitles]);
+  console.log(currentTitles);
 
   const handleSearch = (e) => {
     e.preventDefault();
