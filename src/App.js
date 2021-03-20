@@ -7,60 +7,68 @@ import Star from "./svg/star.svg";
 import Modal from "./Modal";
 
 function App(props) {
-  const [initialTitles, setInitialTitles] = useState("movie/top_rated");
-  const [currentTitles, setCurrentTitles] = useState([]);
-  const [movieId, getMovieId] = useState(123);
-  const [videoKey, setVideoKey] = useState();
-  const [searchStr, setSearchStr] = useState("");
   const [openModal, setOpenModal] = useState(false);
-  const [modalDetails, setModalDetails] = useState({});
+  const [currentTitles, setCurrentTitles] = useState([]);
 
   useEffect(() => {
     async function fetchTitles() {
-      // Start the request when loading > If nothing is searched fetch the default
-      // If there is a search fetch the search only
-      const request = await axios
-        .get(
-          searchStr === ""
-            ? `${MAIN_URL}${initialTitles}?api_key=${API_KEY}`
-            : `${MAIN_URL}search/movie?api_key=${API_KEY}&query=${searchStr}`
-        )
-        .catch((err) => console.log(err));
-      setCurrentTitles(request.data.results);
-      return request;
-    }
-    async function fetchVideoKey() {
-      const keyRequest = await axios
-        .get(`${MAIN_URL}movie/${movieId}/videos?api_key=${API_KEY}`)
-        .catch((err) => console.log(err));
-      setVideoKey(keyRequest.data.results[0].key);
-      return keyRequest;
+      const getTopRated = await axios.get(
+        `${MAIN_URL}movie/top_rated?api_key=${API_KEY}`
+      );
+      setCurrentTitles(getTopRated.data.results);
     }
     fetchTitles();
-    fetchVideoKey();
+  }, []);
 
-    // need to add sth later (the orl from variable)
-  }, [initialTitles, searchStr, movieId]);
+  console.log(currentTitles);
+
+  // useEffect(() => {
+  //   async function fetchTitles() {
+  //     // Start the request when loading > If nothing is searched fetch the default
+  //     // If there is a search fetch the search only
+  //     const request = await axios
+  //       .get(
+  //         searchStr === ""
+  //           ? `${MAIN_URL}${initialTitles}?api_key=${API_KEY}`
+  //           : `${MAIN_URL}search/movie?api_key=${API_KEY}&query=${searchStr}`
+  //       )
+  //       .catch((err) => console.log(err));
+  //     setCurrentTitles(request.data.results);
+  //     return request;
+  //   }
+  //   async function fetchVideoKey() {
+  //     const keyRequest = await axios
+  //       .get(`${MAIN_URL}movie/123/videos?api_key=${API_KEY}`)
+  //       .catch((err) => console.log(err));
+  //     setModalDetails.video = keyRequest.data.results[0].key;
+  //     return keyRequest;
+  //   }
+  //   fetchTitles();
+  //   fetchVideoKey();
+
+  //   // need to add sth later (the orl from variable)
+  // }, [initialTitles, searchStr]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setSearchStr(e.target.value);
+    // setSearchStr(e.target.value);
   };
 
   const handleChange = (e) => {
     e.preventDefault();
-    setInitialTitles(e.target.value);
+    // setInitialTitles(e.target.value);
   };
 
   const handleOpenCloseModal = (e) => {
-    getMovieId(parseInt(e.target.getAttribute("data-id")));
     const cont = document.querySelector(".app");
     const modalWrap = document.querySelector(".modal-wrap");
     cont.classList.add("modal-clear");
     setOpenModal(true);
-    modalDetails.header = e.target.alt;
-    modalDetails.body = e.target.getAttribute("data-body");
-    modalDetails.image = e.target.src;
+    // modalDetails.id = parseInt(e.target.getAttribute("data-id"));
+    // modalDetails.header = e.target.alt;
+    // modalDetails.body = e.target.getAttribute("data-body");
+    // modalDetails.image = e.target.src;
+    // modalDetails.video = e.target.getAttribute("data-id");
     modalWrap.addEventListener("click", (e) => {
       if (e.target.classList.contains("modal-wrap")) {
         setOpenModal(false);
@@ -74,13 +82,13 @@ function App(props) {
     <div className="app">
       <AppHeader />
       <div className="container-main">
-        <Modal
+        {/* <Modal
           openModalConponent={openModal}
           modalHeader={modalDetails.header}
           modalBody={modalDetails.body}
           modalImage={modalDetails.image}
-          modalVideo={videoKey}
-        />
+          modalVideo={modalDetails.video}
+        /> */}
         <p className="heading-title">Trending this week</p>
         {/* <TopCarousel /> */}
         <div className="sorting-wrap">
@@ -100,7 +108,7 @@ function App(props) {
         </label> */}
 
         <ul className="movie-list">
-          {currentTitles.slice(0, 20).map((entry) => {
+          {currentTitles.slice(0, 10).map((entry) => {
             return (
               <li key={entry.id} onClick={handleOpenCloseModal}>
                 <img
