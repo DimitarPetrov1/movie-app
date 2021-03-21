@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { API_KEY, MAIN_URL, IMG_PLACEHOLDER, IMG_URL_MEDIUM } from "./vars";
 import AppHeader from "./AppHeader";
@@ -13,6 +13,7 @@ function App(props) {
   const [category, setCategory] = useState("");
   const [currentTitles, setCurrentTitles] = useState([]);
   const [modalDetails, setModalDetails] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
 
   const top_rated = `${MAIN_URL}movie/top_rated?api_key=${API_KEY}`;
   let var_category = `${MAIN_URL}${category}?api_key=${API_KEY}`;
@@ -56,9 +57,12 @@ function App(props) {
 
     fetchTitles();
     // fetchVideoKey();
-
     setLoading(false);
   }, [currentTitles]);
+
+  // useEffect(() => {
+  //   console.log("changed page " + currentPage);
+  // }, [currentPage]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -90,6 +94,12 @@ function App(props) {
       }
     });
   };
+
+  const handlePaginate = (e) => {
+    // setCurrentPage(toPage * 10);
+    setCurrentPage(Number(e.target.textContent - 1) * 10);
+  };
+
   return (
     <div className="app">
       <AppHeader />
@@ -102,7 +112,7 @@ function App(props) {
           modalVideo={modalDetails.video}
         />
         <p className="heading-title">Trending this week</p>
-        {/* <TopCarousel /> */}
+        <TopCarousel />
         <div className="sorting-wrap">
           <input
             value={searchStr ? searchStr : ""}
@@ -126,7 +136,7 @@ function App(props) {
         </label> */}
         {!isLoading ? (
           <ul className="movie-list">
-            {currentTitles.slice(0, 20).map((entry) => {
+            {currentTitles.slice(currentPage, currentPage + 10).map((entry) => {
               return (
                 <li key={entry.id} onClick={handleOpenCloseModal}>
                   <img
@@ -161,6 +171,14 @@ function App(props) {
         ) : (
           ""
         )}
+        <ul className="pagination">
+          <li className="pagination-item" onClick={handlePaginate}>
+            1
+          </li>
+          <li className="pagination-item" onClick={handlePaginate}>
+            2
+          </li>
+        </ul>
       </div>
     </div>
   );

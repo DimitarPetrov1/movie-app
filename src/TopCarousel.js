@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./css/app.css";
+import "./css/carousel.css";
 
 import axios from "axios";
 
