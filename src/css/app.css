@@ -229,6 +229,10 @@ ul {
   background: #bbbbbb;
 }
 
+.pagination-item-active {
+  background: teal;
+}
+
 @media screen and (max-width: 480px) {
   .container-main {
     width: 96%;

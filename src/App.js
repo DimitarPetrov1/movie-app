@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { API_KEY, MAIN_URL, IMG_PLACEHOLDER, IMG_URL_MEDIUM } from "./vars";
 import AppHeader from "./AppHeader";
@@ -60,10 +60,6 @@ function App(props) {
     setLoading(false);
   }, [currentTitles]);
 
-  // useEffect(() => {
-  //   console.log("changed page " + currentPage);
-  // }, [currentPage]);
-
   const handleSearch = (e) => {
     e.preventDefault();
     setSearchStr(e.target.value);
@@ -96,7 +92,8 @@ function App(props) {
   };
 
   const handlePaginate = (e) => {
-    // setCurrentPage(toPage * 10);
+    let items = document.querySelectorAll(".pagination-item");
+    let current = e.target.textContent;
     setCurrentPage(Number(e.target.textContent - 1) * 10);
   };
 
@@ -112,12 +109,12 @@ function App(props) {
           modalVideo={modalDetails.video}
         />
         <p className="heading-title">Trending this week</p>
-        <TopCarousel />
+        {/* <TopCarousel /> */}
         <div className="sorting-wrap">
           <input
             value={searchStr ? searchStr : ""}
             type="search"
-            placeholder="Search movies"
+            placeholder="Search all movies"
             onChange={handleSearch}
           />
           <select
@@ -172,12 +169,19 @@ function App(props) {
           ""
         )}
         <ul className="pagination">
-          <li className="pagination-item" onClick={handlePaginate}>
-            1
-          </li>
-          <li className="pagination-item" onClick={handlePaginate}>
-            2
-          </li>
+          {currentTitles
+            .slice(0, currentTitles.length / 10)
+            .map((entry, index) => {
+              return (
+                <li
+                  key={index}
+                  className="pagination-item"
+                  onClick={handlePaginate}
+                >
+                  {index + 1}
+                </li>
+              );
+            })}
         </ul>
       </div>
     </div>
