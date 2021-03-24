@@ -6,7 +6,7 @@ function Modal({
   modalHeader,
   modalBody,
   modalImage,
-  modalVideo,
+  modalVideo
 }) {
   return (
     <div
@@ -19,9 +19,8 @@ function Modal({
           <p className="modal-body">{modalBody}</p>
           <div className="modal-video">
             <iframe
+              className="modal-video-video"
               title="short video"
-              width={560}
-              height={315}
               src={`https://www.youtube.com/embed/${modalVideo}`}
               allowFullScreen={true}
             ></iframe>
