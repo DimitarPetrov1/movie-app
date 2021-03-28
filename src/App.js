@@ -11,15 +11,17 @@ import AppHeader from "./AppHeader";
 import TopCarousel from "./TopCarousel";
 import Star from "./svg/star.svg";
 import Modal from "./Modal";
+import PlayVideo from "./PlayVideo";
 
-function App(openMore, carId, carTitle, carBody, carImg, carYear, carRating) {
+function App(props) {
   const [openModal, setOpenModal] = useState(false);
+  const [openVideo, setOpenVideo] = useState(false);
   const [isLoading, setLoading] = useState(true);
   const [searchStr, setSearchStr] = useState("");
   const [category, setCategory] = useState("");
   const [currentTitles, setCurrentTitles] = useState([]);
   const [trending, setTredning] = useState([]);
-  const [video, setVideo] = useState();
+  const [video, setVideo] = useState("");
   const [modalDetails, setModalDetails] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [pageNr, setPageNr] = useState(1);
@@ -80,10 +82,12 @@ function App(openMore, carId, carTitle, carBody, carImg, carYear, carRating) {
   }, [currentTitles]);
 
   const fetchVideo = async (e) => {
+    // If we use the carousel or the movie list we get different ID's of movies
     const id = e.target.getAttribute("data-id");
-
+    const altId = e.target.parentElement.getAttribute("data-id");
     const req = await axios
-      .get(`${MAIN_URL}movie/${id}/videos?api_key=${API_KEY}`)
+      // If one movie ID is null then we use the other
+      .get(`${MAIN_URL}movie/${id ? id : altId}/videos?api_key=${API_KEY}`)
       .then((data) => {
         setVideo(data.data.results[0].key);
       })
@@ -113,35 +117,34 @@ function App(openMore, carId, carTitle, carBody, carImg, carYear, carRating) {
     modalDetails.header = e.target.alt;
     modalDetails.body = e.target.getAttribute("data-body");
     modalDetails.image = e.target.src;
+    modalDetails.imageAlt = e.target.getAttribute("data-backdrop");
     modalDetails.video = e.target.getAttribute("data-id");
     closeModal(e);
   };
 
-  const handleOpenCloseModalCar = (e) => {
-    setOpenModal(true);
-
-    // modalDetails.id = Number(e.target.getAttribute("data-id"));
-    modalDetails.header = e.target.parentElement.querySelector(
-      ".car-movie-title"
-    ).textContent;
+  const handleVideoModal = (e) => {
+    fetchVideo(e);
+    setOpenVideo(true);
     closeModal(e);
-    // modalDetails.video = e.target.getAttribute("data-id");
   };
 
   const closeModal = (e) => {
     const cont = document.querySelector(".app");
     cont.classList.add("modal-clear");
-
-    const modalWrap = document.querySelector(".modal-wrap");
-    modalWrap.addEventListener("click", (e) => {
-      if (e.target.classList.contains("modal-wrap")) {
-        setOpenModal(false);
-        setVideo("");
-        cont.classList.remove("modal-clear");
-      } else {
-        return null;
-      }
-    });
+    const modalWrap = document.querySelectorAll(".modal-wrap");
+    modalWrap.forEach((i) =>
+      i.addEventListener("click", (e) => {
+        if (e.target.classList.contains("modal-wrap")) {
+          setOpenModal(false);
+          setOpenVideo(false);
+          setModalDetails("");
+          setVideo("");
+          cont.classList.remove("modal-clear");
+        } else {
+          return null;
+        }
+      })
+    );
   };
 
   // pagination-item-active
@@ -154,11 +157,13 @@ function App(openMore, carId, carTitle, carBody, carImg, carYear, carRating) {
     <div className="app">
       <AppHeader />
       <div className="container-main">
+        <PlayVideo isVideoPlaying={openVideo} modalVideo={video} />
         <Modal
           openModalConponent={openModal}
           modalHeader={modalDetails.header}
           modalBody={modalDetails.body}
           modalImage={modalDetails.image}
+          modalImageAlt={modalDetails.imageAlt}
           modalVideo={video}
         />
         <p className="heading-title">Trending this week</p>
@@ -172,11 +177,11 @@ function App(openMore, carId, carTitle, carBody, carImg, carYear, carRating) {
               return (
                 <TopCarousel
                   key={item.id}
-                  openMore={handleOpenCloseModalCar}
+                  openMore={handleVideoModal}
                   carId={item.id}
                   carTitle={item.original_title}
                   carBody={item.overview}
-                  carImg={`${IMG_URL_ORIGINAL}${item.backdrop_path}`}
+                  carImg={`${IMG_URL_ORIGINAL}${item.poster_path}`}
                   carYear={item.release_date}
                   carRating={item.vote_average}
                 />
@@ -216,12 +221,12 @@ function App(openMore, carId, carTitle, carBody, carImg, carYear, carRating) {
                   <img
                     data-body={entry.overview}
                     data-id={entry.id}
-                    loading="lazy"
+                    data-backdrop={`${IMG_URL_MEDIUM}${entry.backdrop_path}`}
+                    // loading="lazy"
                     src={
                       entry.poster_path
                         ? `${IMG_URL_MEDIUM}${entry.poster_path}`
-                        : // : `${IMG_URL}${entry.backdrop_path}`
-                          IMG_PLACEHOLDER
+                        : IMG_PLACEHOLDER
                     }
                     className="movie-list__img"
                     alt={`Movie: ${entry.original_title}`}

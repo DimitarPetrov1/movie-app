@@ -15,7 +15,7 @@ function TopCarousel({
       <div className="slide-img-wrap">
         <img src={`${carImg}`} alt={`Movie: ${carTitle}`} />
       </div>
-      <div className="slide-details">
+      <div className="slide-details" data-id={carId}>
         <h2 className="car-movie-title">{carTitle}</h2>
         {/* Make a function for max charakters e.g 30 then ... */}
         <div className="car-movie-description">{carBody}</div>
