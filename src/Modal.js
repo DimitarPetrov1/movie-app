@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./css/modal.css";
 
 function Modal({
@@ -6,22 +6,34 @@ function Modal({
   modalHeader,
   modalBody,
   modalImage,
-  modalVideo,
+  modalImageAlt,
+  modalVideo
 }) {
+  const [size, setSize] = useState(1080);
+  // make it on resize with event listener
+  let windowSize = window.innerWidth;
+
+  useEffect(() => {
+    setSize(windowSize);
+  }, [windowSize]);
+
   return (
     <div
       className={openModalConponent ? "modal-wrap modal-open" : "modal-wrap"}
     >
       <div className="modal_component">
-        <img className="modal-img" src={modalImage} alt={modalHeader} />
+        <img
+          className="modal-img"
+          src={size > 480 ? modalImage : modalImageAlt}
+          alt={modalHeader}
+        />
         <div className="modal-info">
           <p className="modal-header">{modalHeader}</p>
           <p className="modal-body">{modalBody}</p>
           <div className="modal-video">
             <iframe
+              className="modal-video-video"
               title="short video"
-              width={560}
-              height={315}
               src={`https://www.youtube.com/embed/${modalVideo}`}
               allowFullScreen={true}
             ></iframe>

@@ -1,101 +1,215 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { API_KEY, MAIN_URL, IMG_PLACEHOLDER, IMG_URL_MEDIUM } from "./vars";
+import {
+  API_KEY,
+  MAIN_URL,
+  IMG_PLACEHOLDER,
+  IMG_URL_MEDIUM,
+  IMG_URL_ORIGINAL,
+} from "./vars";
 import AppHeader from "./AppHeader";
 import TopCarousel from "./TopCarousel";
 import Star from "./svg/star.svg";
 import Modal from "./Modal";
+import PlayVideo from "./PlayVideo";
 
 function App(props) {
   const [openModal, setOpenModal] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const [openVideo, setOpenVideo] = useState(false);
+  const [isLoading, setLoading] = useState(true);
   const [searchStr, setSearchStr] = useState("");
   const [category, setCategory] = useState("");
   const [currentTitles, setCurrentTitles] = useState([]);
+  const [trending, setTredning] = useState([]);
+  const [video, setVideo] = useState("");
   const [modalDetails, setModalDetails] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageNr, setPageNr] = useState(1);
 
   const top_rated = `${MAIN_URL}movie/top_rated?api_key=${API_KEY}`;
+  let var_category = `${MAIN_URL}${category}?api_key=${API_KEY}`;
   const searching = `${MAIN_URL}search/movie?api_key=${API_KEY}&query=${searchStr}`;
-  const var_category = `${MAIN_URL}${category}?api_key=${API_KEY}`;
 
-  // .get(`${MAIN_URL}movie/123/videos?api_key=${API_KEY}`)
-  const fetchTitles = async () => {
-    // if we search for something we use the searching const as string
-    // if we don't search for anything there are 2 things that need to be done:
-    // 1. we get the default top rated to display some items in the grid
-    // 2. if we change the category then fetch that category and display it
-    if (!searchStr) {
-      if (!category) {
-        const req = await axios.get(top_rated);
-        setCurrentTitles(req.data.results);
-      } else {
-        const req = await axios.get(var_category);
-        setCurrentTitles(req.data.results);
-      }
-      return;
-    } else {
-      const req = await axios.get(searching);
-      setCurrentTitles(req.data.results);
-    }
-    return;
-  };
   useEffect(() => {
-    fetchTitles();
-    // setLoading(false);
-  }, [category, searchStr]);
+    async function fetchTrending() {
+      const reqeust = await axios.get(
+        `${MAIN_URL}/trending/all/week?api_key=${API_KEY}`
+      );
+      setTredning(reqeust.data.results);
+      return reqeust;
+    }
+    fetchTrending();
+  }, []);
 
-  console.log(currentTitles);
+  useEffect(() => {
+    const fetchTitles = async () => {
+      // if we search for something we use the searching const as string
+      // if we don't search for anything there are 2 things that need to be done:
+      // 1. we get the default top rated to display some items in the grid
+      // 2. if we change the category then fetch that category and display it
+      if (searchStr === "") {
+        if (category === "") {
+          const req = await axios
+            .get(top_rated)
+            .then((data) => {
+              setCurrentTitles(data.data.results);
+            })
+            .catch((err) => console.log(err));
+          return req;
+        } else {
+          const req = await axios
+            .get(var_category)
+            .then((data) => {
+              setCurrentTitles(data.data.results);
+            })
+            .catch((err) => console.log(err));
+          return req;
+        }
+      } else {
+        const req = await axios
+          .get(searching)
+          .then((data) => {
+            setCurrentTitles(data.data.results);
+          })
+          .catch((err) => console.log(err));
+        return req;
+      }
+    };
+
+    fetchTitles();
+    // fetchVideoKey();
+    setLoading(false);
+  }, [currentTitles]);
+
+  const fetchVideo = async (e) => {
+    // If we use the carousel or the movie list we get different ID's of movies
+    const id = e.target.getAttribute("data-id");
+    const altId = e.target.parentElement.getAttribute("data-id");
+    const req = await axios
+      // If one movie ID is null then we use the other
+      .get(`${MAIN_URL}movie/${id ? id : altId}/videos?api_key=${API_KEY}`)
+      .then((data) => {
+        setVideo(data.data.results[0].key);
+      })
+      .catch((err) => console.log(err));
+    return req;
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
     setSearchStr(e.target.value);
+    setCurrentPage(0);
+    setPageNr(1);
   };
 
   const handleChange = (e) => {
     e.preventDefault();
     setSearchStr("");
     setCategory(e.target.value);
+    setCurrentPage(0);
+    setPageNr(1);
+  };
+
+  const scrollToVideo = () => {
+    const modals = document.querySelectorAll(".modal-wrap");
+    modals.forEach((modal) => {
+      modal.scrollIntoView();
+    });
   };
 
   const handleOpenCloseModal = (e) => {
-    const cont = document.querySelector(".app");
-    const modalWrap = document.querySelector(".modal-wrap");
-    cont.classList.add("modal-clear");
+    fetchVideo(e);
     setOpenModal(true);
     modalDetails.id = Number(e.target.getAttribute("data-id"));
     modalDetails.header = e.target.alt;
     modalDetails.body = e.target.getAttribute("data-body");
     modalDetails.image = e.target.src;
+    modalDetails.imageAlt = e.target.getAttribute("data-backdrop");
     modalDetails.video = e.target.getAttribute("data-id");
-    modalWrap.addEventListener("click", (e) => {
-      if (e.target.classList.contains("modal-wrap")) {
-        setOpenModal(false);
-        cont.classList.remove("modal-clear");
-      } else {
-        return null;
-      }
-    });
+    scrollToVideo();
+    closeModal(e);
   };
+
+  const handleVideoModal = (e) => {
+    fetchVideo(e);
+    setOpenVideo(true);
+    scrollToVideo();
+    closeModal(e);
+  };
+
+  const closeModal = (e) => {
+    const cont = document.querySelector(".app");
+    cont.classList.add("modal-clear");
+    const modalWrap = document.querySelectorAll(".modal-wrap");
+    modalWrap.forEach((i) =>
+      i.addEventListener("click", (e) => {
+        if (e.target.classList.contains("modal-wrap")) {
+          setOpenModal(false);
+          setOpenVideo(false);
+          setModalDetails("");
+          setVideo("");
+          cont.classList.remove("modal-clear");
+        } else {
+          return null;
+        }
+      })
+    );
+  };
+
+  // pagination-item-active
+  const handlePaginate = (e) => {
+    setCurrentPage(Number(e.target.textContent - 1) * 10);
+    setPageNr(Number(e.target.textContent));
+  };
+
   return (
     <div className="app">
       <AppHeader />
       <div className="container-main">
+        <PlayVideo isVideoPlaying={openVideo} modalVideo={video} />
         <Modal
           openModalConponent={openModal}
           modalHeader={modalDetails.header}
           modalBody={modalDetails.body}
           modalImage={modalDetails.image}
-          modalVideo={modalDetails.video}
+          modalImageAlt={modalDetails.imageAlt}
+          modalVideo={video}
         />
         <p className="heading-title">Trending this week</p>
-        {/* <TopCarousel /> */}
+        <div className="carrousel">
+          <input type="radio" name="slides" id="radio-1" defaultChecked />
+          <input type="radio" name="slides" id="radio-2" />
+          <input type="radio" name="slides" id="radio-3" />
+          <input type="radio" name="slides" id="radio-4" />
+          <ul className="slides">
+            {trending.slice(0, 4).map((item) => {
+              return (
+                <TopCarousel
+                  key={item.id}
+                  openMore={handleVideoModal}
+                  carId={item.id}
+                  carTitle={item.original_title}
+                  carBody={item.overview}
+                  carImg={`${IMG_URL_ORIGINAL}${item.backdrop_path}`}
+                  carYear={item.release_date}
+                  carRating={item.vote_average}
+                />
+              );
+            })}
+          </ul>
+          <div className="slidesNavigation">
+            <label htmlFor="radio-1" id="dotForRadio-1" />
+            <label htmlFor="radio-2" id="dotForRadio-2" />
+            <label htmlFor="radio-3" id="dotForRadio-3" />
+            <label htmlFor="radio-4" id="dotForRadio-4" />
+          </div>
+        </div>
         <div className="sorting-wrap">
           <input
-            // value={searchStr ? searchStr : ""}
+            value={searchStr ? searchStr : ""}
             type="search"
-            placeholder="Search movies"
-            // onChange={handleSearch}
-            onSubmit={handleSearch}
+            placeholder="Search all movies"
+            onChange={handleSearch}
           />
           <select
             defaultValue="movie/top_rated"
@@ -108,23 +222,20 @@ function App(props) {
             <option value="trending/all/week">Trending (This week)</option>
           </select>
         </div>
-        {/* <label htmlFor="currentTitles" className="heading-title">
-          Top rated
-        </label> */}
         {!isLoading ? (
           <ul className="movie-list">
-            {currentTitles.slice(0, 20).map((entry) => {
+            {currentTitles.slice(currentPage, currentPage + 10).map((entry) => {
               return (
                 <li key={entry.id} onClick={handleOpenCloseModal}>
                   <img
                     data-body={entry.overview}
                     data-id={entry.id}
-                    loading="lazy"
+                    data-backdrop={`${IMG_URL_MEDIUM}${entry.backdrop_path}`}
+                    // loading="lazy"
                     src={
                       entry.poster_path
                         ? `${IMG_URL_MEDIUM}${entry.poster_path}`
-                        : // : `${IMG_URL}${entry.backdrop_path}`
-                          IMG_PLACEHOLDER
+                        : IMG_PLACEHOLDER
                     }
                     className="movie-list__img"
                     alt={`Movie: ${entry.original_title}`}
@@ -148,6 +259,25 @@ function App(props) {
         ) : (
           ""
         )}
+        <ul className="pagination">
+          {currentTitles
+            .slice(0, currentTitles.length / 10)
+            .map((entry, index) => {
+              return (
+                <li
+                  key={index}
+                  className={
+                    pageNr === index + 1
+                      ? "pagination-item pagination-item-active"
+                      : "pagination-item"
+                  }
+                  onClick={handlePaginate}
+                >
+                  {index + 1}
+                </li>
+              );
+            })}
+        </ul>
       </div>
     </div>
   );
