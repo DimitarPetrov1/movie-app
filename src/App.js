@@ -19,29 +19,27 @@ function App(props) {
   const var_category = `${MAIN_URL}${category}?api_key=${API_KEY}`;
 
   // .get(`${MAIN_URL}movie/123/videos?api_key=${API_KEY}`)
-
-  useEffect(() => {
-    const fetchTitles = async () => {
-      // if we search for something we use the searching const as string
-      // if we don't search for anything there are 2 things that need to be done:
-      // 1. we get the default top rated to display some items in the grid
-      // 2. if we change the category then fetch that category and display it
-      if (searchStr === "") {
-        if (category === "") {
-          const req = await axios.get(top_rated);
-          setCurrentTitles(req.data.results);
-          return req;
-        } else {
-          const req = await axios.get(var_category);
-          setCurrentTitles(req.data.results);
-          return req;
-        }
-      } else {
-        const req = await axios.get(searching);
+  const fetchTitles = async () => {
+    // if we search for something we use the searching const as string
+    // if we don't search for anything there are 2 things that need to be done:
+    // 1. we get the default top rated to display some items in the grid
+    // 2. if we change the category then fetch that category and display it
+    if (!searchStr) {
+      if (!category) {
+        const req = await axios.get(top_rated);
         setCurrentTitles(req.data.results);
-        return req;
+      } else {
+        const req = await axios.get(var_category);
+        setCurrentTitles(req.data.results);
       }
-    };
+      return;
+    } else {
+      const req = await axios.get(searching);
+      setCurrentTitles(req.data.results);
+    }
+    return;
+  };
+  useEffect(() => {
     fetchTitles();
     // setLoading(false);
   }, [category, searchStr]);
@@ -93,10 +91,11 @@ function App(props) {
         {/* <TopCarousel /> */}
         <div className="sorting-wrap">
           <input
-            value={searchStr ? searchStr : ""}
+            // value={searchStr ? searchStr : ""}
             type="search"
             placeholder="Search movies"
-            onChange={handleSearch}
+            // onChange={handleSearch}
+            onSubmit={handleSearch}
           />
           <select
             defaultValue="movie/top_rated"
