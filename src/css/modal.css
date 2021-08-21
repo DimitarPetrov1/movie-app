@@ -8,14 +8,21 @@
   z-index: 800;
   visibility: hidden;
 }
-.modal_component {
+
+.modal-video-playvideo {
   position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.modal_component {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   top: 100px;
   left: 0;
-  height: 800px;
+  /* height: 800px; */
   width: 100%;
   background: white;
   z-index: 900;
@@ -43,18 +50,30 @@
   /*  */
 }
 
+.modal-open-playvideo {
+  /*  */
+}
+.modal-video-playvideo {
+  width: 800px;
+  height: 600px;
+}
+
 @media screen and (max-width: 480px) {
   .modal_component {
     flex-wrap: wrap;
     top: 50px;
     flex-direction: row;
+    align-content: flex-start;
   }
 
   .modal-open {
     overflow: scroll;
   }
   .modal-img {
-    height: 50%;
+    width: 100%;
+    height: auto;
+    justify-self: center;
+    align-self: center;
   }
   .modal-info {
     align-self: flex-start;
@@ -63,6 +82,9 @@
   .modal-header {
     font-size: 22px;
     padding-bottom: 20px;
+  }
+  .modal-body {
+    margin-bottom: 20px;
   }
   .modal-video-video {
     width: 100%;

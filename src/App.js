@@ -110,6 +110,13 @@ function App(props) {
     setPageNr(1);
   };
 
+  const scrollToVideo = () => {
+    const modals = document.querySelectorAll(".modal-wrap");
+    modals.forEach((modal) => {
+      modal.scrollIntoView();
+    });
+  };
+
   const handleOpenCloseModal = (e) => {
     fetchVideo(e);
     setOpenModal(true);
@@ -119,12 +126,14 @@ function App(props) {
     modalDetails.image = e.target.src;
     modalDetails.imageAlt = e.target.getAttribute("data-backdrop");
     modalDetails.video = e.target.getAttribute("data-id");
+    scrollToVideo();
     closeModal(e);
   };
 
   const handleVideoModal = (e) => {
     fetchVideo(e);
     setOpenVideo(true);
+    scrollToVideo();
     closeModal(e);
   };
 
@@ -181,7 +190,7 @@ function App(props) {
                   carId={item.id}
                   carTitle={item.original_title}
                   carBody={item.overview}
-                  carImg={`${IMG_URL_ORIGINAL}${item.poster_path}`}
+                  carImg={`${IMG_URL_ORIGINAL}${item.backdrop_path}`}
                   carYear={item.release_date}
                   carRating={item.vote_average}
                 />
