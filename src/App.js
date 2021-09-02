@@ -5,7 +5,7 @@ import {
   MAIN_URL,
   IMG_PLACEHOLDER,
   IMG_URL_MEDIUM,
-  IMG_URL_ORIGINAL,
+  IMG_URL_ORIGINAL
 } from "./vars";
 import AppHeader from "./AppHeader";
 import TopCarousel from "./TopCarousel";
@@ -29,6 +29,7 @@ function App(props) {
   const top_rated = `${MAIN_URL}movie/top_rated?api_key=${API_KEY}`;
   let var_category = `${MAIN_URL}${category}?api_key=${API_KEY}`;
   const searching = `${MAIN_URL}search/movie?api_key=${API_KEY}&query=${searchStr}`;
+  const modalWrap = document.querySelectorAll(".modal-wrap");
 
   useEffect(() => {
     async function fetchTrending() {
@@ -110,13 +111,6 @@ function App(props) {
     setPageNr(1);
   };
 
-  const scrollToVideo = () => {
-    const modals = document.querySelectorAll(".modal-wrap");
-    modals.forEach((modal) => {
-      modal.scrollIntoView();
-    });
-  };
-
   const handleOpenCloseModal = (e) => {
     fetchVideo(e);
     setOpenModal(true);
@@ -126,27 +120,29 @@ function App(props) {
     modalDetails.image = e.target.src;
     modalDetails.imageAlt = e.target.getAttribute("data-backdrop");
     modalDetails.video = e.target.getAttribute("data-id");
-    scrollToVideo();
     closeModal(e);
   };
 
   const handleVideoModal = (e) => {
     fetchVideo(e);
     setOpenVideo(true);
-    scrollToVideo();
     closeModal(e);
   };
 
   const closeModal = (e) => {
     const cont = document.querySelector(".app");
     cont.classList.add("modal-clear");
-    const modalWrap = document.querySelectorAll(".modal-wrap");
     modalWrap.forEach((i) =>
       i.addEventListener("click", (e) => {
         if (e.target.classList.contains("modal-wrap")) {
           setOpenModal(false);
           setOpenVideo(false);
-          setModalDetails("");
+          modalDetails.id = "";
+          modalDetails.header = "";
+          modalDetails.body = "";
+          modalDetails.image = "";
+          modalDetails.imageAlt = "";
+          modalDetails.video = "";
           setVideo("");
           cont.classList.remove("modal-clear");
         } else {

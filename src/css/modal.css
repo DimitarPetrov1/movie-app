@@ -6,6 +6,7 @@
   left: 0;
   background: rgba(0, 0, 0, 0.8);
   z-index: 800;
+  height: 100vh;
   visibility: hidden;
 }
 
@@ -17,15 +18,17 @@
 }
 
 .modal_component {
+  position: absolute;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  top: 100px;
+  top: 50%;
   left: 0;
-  /* height: 800px; */
+  height: 60vh;
   width: 100%;
   background: white;
   z-index: 900;
+  transform: translateY(-50%);
 }
 
 .modal-open {
@@ -47,7 +50,7 @@
 }
 
 .modal-video-video {
-  /*  */
+  margin-top: 40px;
 }
 
 .modal-open-playvideo {
